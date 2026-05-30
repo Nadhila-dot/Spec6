@@ -1,10 +1,10 @@
-# Sentinel Voice Assistant Plan
+# Spec6 Voice Assistant Plan
 
 ## Goal
 
-Build a **voice-to-voice company copilot** inside Sentinel.
+Build a **voice-to-voice company copilot** inside Spec6.
 
-This is not just speech-to-text on the existing chat box. It is a dedicated company tab where a founder can talk to Sentinel naturally, hear answers back, and keep the assistant running in the background while doing other work.
+This is not just speech-to-text on the existing chat box. It is a dedicated company tab where a founder can talk to Spec6 naturally, hear answers back, and keep the assistant running in the background while doing other work.
 
 Core idea:
 
@@ -78,7 +78,7 @@ This should behave more like a **personal operator** than a demo chatbot.
 
 ## What the Voice Assistant Actually Does
 
-The voice assistant is the same Sentinel intelligence engine wrapped in a conversational audio loop.
+The voice assistant is the same Spec6 intelligence engine wrapped in a conversational audio loop.
 
 For every spoken turn it should be able to:
 
@@ -292,8 +292,8 @@ Voice assistant usage:
 
 If TriggerWare has no usable connector coverage for a company use case:
 
-- Sentinel says so directly
-- falls back to Sentinel-managed monitoring
+- Spec6 says so directly
+- falls back to Spec6-managed monitoring
 - still lets the user continue the conversation
 
 This is important for enterprise trust.
@@ -333,7 +333,7 @@ Scope:
 - browser mic capture
 - Speechmatics real-time STT
 - live transcript
-- finalized transcript sent into existing Sentinel chat loop
+- finalized transcript sent into existing Spec6 chat loop
 - typed answer still rendered as text
 
 Success:
@@ -473,7 +473,7 @@ Mitigation:
 This feature is successful if:
 
 - a founder can open a company and speak naturally
-- Sentinel answers from real company context, not generic memory
+- Spec6 answers from real company context, not generic memory
 - it can pull live data when needed
 - it can read changes, risks, and competitor shifts out loud
 - it remembers prior voice conversations

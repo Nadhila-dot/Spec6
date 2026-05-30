@@ -1,4 +1,4 @@
-# Sentinel — Product Spec
+# Spec6 — Product Spec
 ### Web Data UNLOCKED Hackathon · May 25–31, 2026
 ### lablab.ai × BrightData
 
@@ -6,7 +6,7 @@
 
 ## TL;DR
 
-Sentinel is an **autonomous brand-intelligence analyst you talk to**. Ask it anything about a brand — "any counterfeits on Puma?", "how are our global sales trending?", "what are competitors shipping this quarter?" — and it fans specialised agents across BrightData's web infrastructure, reasons over the evidence, and answers like a McKinsey/Bloomberg analyst: a written verdict, a live **world threat map**, **growth-projection charts**, and a citable evidence trail. Then it keeps working *after* you close the tab — a background **Watchtower** re-scans every tracked company on a schedule, with zero human in the loop.
+Spec6 is an **autonomous brand-intelligence analyst you talk to**. Ask it anything about a brand — "any counterfeits on Puma?", "how are our global sales trending?", "what are competitors shipping this quarter?" — and it fans specialised agents across BrightData's web infrastructure, reasons over the evidence, and answers like a McKinsey/Bloomberg analyst: a written verdict, a live **world threat map**, **growth-projection charts**, and a citable evidence trail. Then it keeps working *after* you close the tab — a background **Watchtower** re-scans every tracked company on a schedule, with zero human in the loop.
 
 **Tagline:** *"The Bloomberg Terminal for brand threats — that you can just talk to."*
 
@@ -37,22 +37,22 @@ Sentinel is an **autonomous brand-intelligence analyst you talk to**. Ask it any
 
 ## How it actually works
 
-1. **Onboard a company.** Create a "company group" with a name + free-text profile (specialty, customers, known competitors). On save, Sentinel auto-queues a **BrightData competitor overview** in the background and ingests the profile into the company's Cognee graph.
+1. **Onboard a company.** Create a "company group" with a name + free-text profile (specialty, customers, known competitors). On save, Spec6 auto-queues a **BrightData competitor overview** in the background and ingests the profile into the company's Cognee graph.
 2. **Ask anything in chat.** Each message runs an **agentic tool loop** in Rust:
    - A deterministic **router** pre-dispatches the right specialised scouts based on intent (counterfeit → Amazon/AliExpress/eBay/Niche; competitive → LinkedIn/News/Social; reputation → Reddit/Trustpilot/News; sales/geo → revenue-by-region SERP).
    - The LLM then runs up to 4 iterations × 4 tools, calling more scouts or `search_cognee` until it has enough evidence.
    - Tool calls stream to the UI live as a **per-agent canvas** (queries fired, elapsed ms, hit counts).
 3. **The answer is multi-modal.** The model emits, in one message:
    - The **prose verdict** (analyst voice, inline citations).
-   - A `<sentinel-pins>` block → rendered as the **interactive world map** (hover any country for its analyst note).
-   - A `<sentinel-trend>` block → rendered as a **Recharts growth/projection chart** (measured solid, forecast dashed).
+   - A `<spec6-pins>` block → rendered as the **interactive world map** (hover any country for its analyst note).
+   - A `<spec6-trend>` block → rendered as a **Recharts growth/projection chart** (measured solid, forecast dashed).
 4. **It keeps watching.** The **Watchtower** re-scans every tracked company on a cadence, refreshing dossiers autonomously and surfacing "N autonomous scans · last patrol 12m ago" in the UI.
 
 ---
 
 ## BrightData Tools — Full Suite
 
-| Tool | What It Does | How Sentinel Uses It |
+| Tool | What It Does | How Spec6 Uses It |
 |---|---|---|
 | **MCP Server** | Connect AI agents to the live web | Orchestrator wires agents to BrightData live access |
 | **Web Unlocker** | Bypass bot detection / CAPTCHAs / geo-blocks | Competitor sites, pricing pages, review pages, Reddit threads |
@@ -97,7 +97,7 @@ The **Scraper Studio niche scout** and the **Cognee knowledge graph** are the di
 
 ## The autonomous factor (Watchtower)
 
-Deep-research agents love to loop and quietly burn paid web-data + LLM calls, so Sentinel's autonomy is **governed**:
+Deep-research agents love to loop and quietly burn paid web-data + LLM calls, so Spec6's autonomy is **governed**:
 
 - A background Tokio loop (`src/watchtower.rs`) patrols on a configurable cadence (`WATCHTOWER_INTERVAL_SECS`, default 6h; first patrol 90s after boot).
 - Each patrol re-runs the **same BrightData overview pipeline** the chat uses — an autonomous re-scan is indistinguishable from a manual one, it just runs on a clock.
@@ -119,7 +119,7 @@ Deep-research agents love to loop and quietly burn paid web-data + LLM calls, so
 
 ## The Pitch
 
-"Brand threat intelligence has been a $155K/year, four-tool problem — a protection analyst, Crayon, Meltwater, a supply-chain platform. Sentinel collapses all four into one conversation, backed by seven BrightData products, an agentic tool loop, a knowledge graph, and an autonomous monitor that keeps working when you're asleep. Ask it a question, get an analyst brief with a live map and a growth projection. $5 a scan, not $155K a year."
+"Brand threat intelligence has been a $155K/year, four-tool problem — a protection analyst, Crayon, Meltwater, a supply-chain platform. Spec6 collapses all four into one conversation, backed by seven BrightData products, an agentic tool loop, a knowledge graph, and an autonomous monitor that keeps working when you're asleep. Ask it a question, get an analyst brief with a live map and a growth projection. $5 a scan, not $155K a year."
 
 ---
 
@@ -128,14 +128,14 @@ Deep-research agents love to loop and quietly burn paid web-data + LLM calls, so
 | Time | Screen | Voice-over |
 |---|---|---|
 | 0:00–0:08 | Black, white text | A brand-protection analyst costs $80K. Competitive intel, $30K. Media monitoring, $25K. Or… |
-| 0:08–0:14 | Sentinel chat, welcome screen with **Autonomous monitoring** banner | …you open Sentinel. It's already been watching. |
+| 0:08–0:14 | Spec6 chat, welcome screen with **Autonomous monitoring** banner | …you open Spec6. It's already been watching. |
 | 0:14–0:24 | Type "any counterfeits on Puma, and where are they coming from?" | One question. |
 | 0:24–0:55 | Agent canvas lights up — Amazon, AliExpress, eBay, Niche scouts firing in parallel; log streaming | Four marketplace scouts on BrightData. Origin geo, supplier clusters. Rust on Tokio. |
 | 0:55–1:15 | Answer streams in; world map fills, Guangdong glows critical | 23 fakes traced to Guangdong. Hover any country for the analyst note. |
 | 1:15–1:30 | Ask "how's revenue trending and where's it headed?" → Recharts area chart with dashed forecast | Measured solid, forecast dashed. A projection, in the chat. |
 | 1:30–1:45 | Open canvas drawer → Cognee graph activity | Every prior scan feeds a knowledge graph it queries back. |
 | 1:45–1:55 | Click **Run patrol now** → "Dispatched 3 autonomous scans" | And it doesn't wait to be asked. |
-| 1:55–2:00 | Closing card — Sentinel + BrightData logos, three track badges | Brand intelligence at the speed of conversation. Powered by BrightData. |
+| 1:55–2:00 | Closing card — Spec6 + BrightData logos, three track badges | Brand intelligence at the speed of conversation. Powered by BrightData. |
 
 Five takes minimum. Voice-over recorded separately. Soft music at -20dB.
 
@@ -174,7 +174,7 @@ See `CLAUDE.md` (DESIGN.md). Monochrome, terminal-print-meets-SaaS, 135° diagon
 
 ## Submission Checklist
 
-- [ ] Title: **Sentinel — Conversational Autonomous Brand Threat Intelligence**
+- [ ] Title: **Spec6 — Conversational Autonomous Brand Threat Intelligence**
 - [ ] Tagline: *The Bloomberg Terminal for brand threats — that you can just talk to.*
 - [ ] Tracks: Security & Compliance · GTM Intelligence · Finance & Market Intelligence
 - [ ] All seven BrightData tools listed explicitly

@@ -8,7 +8,7 @@ export function SignupPage() {
   return (
     <AuthShell
       heading="Create an account"
-      sub="Get access to Sentinel."
+      sub="Get access to Spec6."
       form={<SignupForm />}
       switchTo={{ href: "/login", label: "Already have an account?", cta: "Sign in" }}
     />

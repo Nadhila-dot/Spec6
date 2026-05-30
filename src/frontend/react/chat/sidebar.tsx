@@ -117,7 +117,7 @@ export function Sidebar({
             "flex items-center rounded-lg px-1",
             isCompact && "justify-center",
           )}
-          title={isCompact ? "Sentinel" : undefined}
+          title={isCompact ? "Spec6" : undefined}
         >
           <span
             className={cn(
@@ -125,7 +125,7 @@ export function Sidebar({
               isCompact ? "text-[13px]" : "text-[15px]",
             )}
           >
-            {isCompact ? "S" : "Sentinel"}
+            {isCompact ? "S" : "Spec6"}
           </span>
         </a>
 

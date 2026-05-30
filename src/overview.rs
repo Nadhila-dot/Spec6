@@ -493,7 +493,7 @@ pub fn prompt_context(group_data_text: Option<String>, overview: Option<&Company
             .collect::<Vec<_>>();
 
         let mut overview_parts = vec![
-            "Sentinel competitor overview for this company. Use it as private context; do not mention hidden sourcing unless the user asks.".to_owned(),
+            "Spec6 competitor overview for this company. Use it as private context; do not mention hidden sourcing unless the user asks.".to_owned(),
         ];
         if !section_lines.is_empty() {
             overview_parts.push(section_lines.join("\n"));
@@ -658,7 +658,7 @@ async fn run_company_overview(state: AppState, user_id: ObjectId, company_id: Ob
     );
 
     let client = reqwest::Client::builder()
-        .user_agent("win-win-sentinel/0.1")
+        .user_agent("win-win-spec6/0.1")
         .connect_timeout(Duration::from_secs(3))
         .timeout(Duration::from_secs(BRIGHTDATA_HTTP_TIMEOUT_SECS))
         .tcp_keepalive(Duration::from_secs(30))
@@ -1707,7 +1707,7 @@ async fn run_spoken_web_tool(
         Err(err) => return fail(err.to_string()),
     };
     let client = match reqwest::Client::builder()
-        .user_agent("win-win-sentinel/0.1")
+        .user_agent("win-win-spec6/0.1")
         .connect_timeout(Duration::from_secs(3))
         .timeout(Duration::from_secs(BRIGHTDATA_HTTP_TIMEOUT_SECS))
         .build()
@@ -2557,7 +2557,7 @@ pub async fn run_chat_tool(
     };
 
     let client = match reqwest::Client::builder()
-        .user_agent("win-win-sentinel/0.1")
+        .user_agent("win-win-spec6/0.1")
         .connect_timeout(Duration::from_secs(3))
         .timeout(Duration::from_secs(BRIGHTDATA_HTTP_TIMEOUT_SECS))
         .build()
@@ -4846,11 +4846,11 @@ mod tests {
     fn should_queue_requires_real_context() {
         assert!(!should_queue_company_overview(
             "New company",
-            "Sentinel company onboarding context.\n- No onboarding fields were provided yet."
+            "Spec6 company onboarding context.\n- No onboarding fields were provided yet."
         ));
         assert!(should_queue_company_overview(
             "BrightData",
-            "Sentinel company onboarding context.\n- Company name: BrightData"
+            "Spec6 company onboarding context.\n- Company name: BrightData"
         ));
     }
 

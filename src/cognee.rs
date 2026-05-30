@@ -330,5 +330,5 @@ fn parse_one_result(item: Value) -> Option<CogneeSearchResult> {
 /// Stable dataset name for a company group. Uses the group's MongoDB ObjectId
 /// so there are no collisions even if the company is renamed.
 pub fn dataset_name_for_group(group_id: &str) -> String {
-    format!("sentinel-{group_id}")
+    format!("spec6-{group_id}")
 }

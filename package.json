@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "bash scripts/dev.sh",
     "dev:frontend": "vite --config src/frontend/vite.config.ts",
-    "dev:server": "cargo run",
+    "dev:server": "cargo run --bin spec6",
     "build:frontend": "vite build --config src/frontend/vite.config.ts",
-    "build:app": "bun run build:frontend && cargo build --release",
-    "preview": "APP_ENV=production cargo run"
+    "build:app": "bun run build:frontend && cargo build --release --locked --bin spec6",
+    "build:binary": "bun run build:app",
+    "package:linux-amd64": "bun run build:app && rm -rf dist/release && mkdir -p dist/release && cp target/release/spec6 dist/release/spec6 && cp .env.example dist/release/.env.example && cp README.md dist/release/README.md && chmod +x dist/release/spec6 && tar -C dist/release -czf dist/spec6-linux-amd64.tar.gz spec6 .env.example README.md",
+    "preview": "APP_ENV=production cargo run --bin spec6"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

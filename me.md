@@ -1,6 +1,6 @@
-Sentinel
+Spec6
 
-Sentinel is an AI powered brand risk monitoring and management platform, it has daily check ups manual recogintion and automatic recogintion, it can help you to monitor your brand risk and manage it effectively. It can also help you to identify potential risks and take action to mitigate them. Sentinel is a powerful tool for any business that wants to protect its brand and reputation.
+Spec6 is an AI powered brand risk monitoring and management platform, it has daily check ups manual recogintion and automatic recogintion, it can help you to monitor your brand risk and manage it effectively. It can also help you to identify potential risks and take action to mitigate them. Spec6 is a powerful tool for any business that wants to protect its brand and reputation.
 
 
 good ui lokwey

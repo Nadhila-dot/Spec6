@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2024"
 build = "build.rs"
 
+[[bin]]
+name = "spec6"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0"
 argon2 = "0.5"

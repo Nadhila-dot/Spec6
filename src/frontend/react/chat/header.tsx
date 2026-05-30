@@ -39,7 +39,7 @@ export function ChatHeader({
         <button
           type="button"
           onClick={onOpenVoice}
-          title="Talk to Sentinel"
+          title="Talk to Spec6"
           className="group relative inline-flex h-8 items-center gap-1.5 overflow-hidden rounded-full bg-card px-3 text-[12px] font-semibold tracking-tight text-foreground/85 ring-1 ring-border/70 transition hover:text-foreground hover:ring-border"
         >
           <span

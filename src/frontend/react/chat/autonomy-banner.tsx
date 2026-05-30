@@ -1,7 +1,7 @@
 /**
  * Autonomous monitoring status — the "Watchtower".
  *
- * Sentinel doesn't only answer when asked. A background patrol re-scans every
+ * Spec6 doesn't only answer when asked. A background patrol re-scans every
  * tracked company on a schedule, refreshing its threat dossier without a human
  * in the loop. This banner surfaces that activity and lets the operator kick a
  * patrol off on demand (great for live demos).
@@ -94,7 +94,7 @@ export function AutonomyBanner() {
           <div className="mt-0.5 text-[12px] leading-tight text-foreground/80">
             {flash ?? (
               <>
-                Sentinel re-scans every tracked company every{" "}
+                Spec6 re-scans every tracked company every{" "}
                 <span className="tabular-nums">
                   {formatInterval(status.interval_secs)}
                 </span>

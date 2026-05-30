@@ -1,5 +1,5 @@
 /**
- * Wire-level event contract for the Sentinel scan stream.
+ * Wire-level event contract for the Spec6 scan stream.
  *
  * Same shape we'll use over SSE once the backend ships. Build the UI against
  * this typed union and the mock emitter; swap the source at the seam.

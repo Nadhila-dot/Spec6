@@ -1,0 +1,85 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-amd64:
+    name: Release Linux amd64
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build embedded frontend
+        run: bun run build:frontend
+
+      - name: Build release binary
+        run: cargo build --release --locked --bin spec6
+
+      - name: Compute version
+        id: version
+        run: |
+          base_version=$(grep -m1 '^version = "' Cargo.toml | sed -E 's/version = "([^"]+)"/\1/')
+          version="${base_version}.${GITHUB_RUN_NUMBER}"
+          tag="v${version}"
+          asset="spec6-linux-amd64-${tag}.tar.gz"
+          checksum="${asset}.sha256"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "asset=${asset}" >> "$GITHUB_OUTPUT"
+          echo "checksum=${checksum}" >> "$GITHUB_OUTPUT"
+
+      - name: Package release archive
+        run: |
+          rm -rf dist/release
+          mkdir -p dist/release
+          cp target/release/spec6 dist/release/spec6
+          cp .env.example dist/release/.env.example
+          cp README.md dist/release/README.md
+          chmod +x dist/release/spec6
+          tar -C dist/release -czf "dist/${{ steps.version.outputs.asset }}" spec6 .env.example README.md
+          sha256sum "dist/${{ steps.version.outputs.asset }}" > "dist/${{ steps.version.outputs.checksum }}"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Spec6 ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          make_latest: true
+          files: |
+            dist/${{ steps.version.outputs.asset }}
+            dist/${{ steps.version.outputs.checksum }}
+          body: |
+            Linux x86_64 download:
+            - [${{ steps.version.outputs.asset }}](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/${{ steps.version.outputs.asset }})

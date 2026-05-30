@@ -35,7 +35,7 @@ export function LandingPage({ payload }: { payload: PagePayload }) {
               {user ? (
                 <a href="/chat">
                   <Button size="lg">
-                    Open Sentinel
+                    Open Spec6
                     <IconArrowRight size={15} />
                   </Button>
                 </a>
@@ -83,7 +83,7 @@ function BrandRow() {
   return (
     <div className="flex items-center">
       <span className="font-chillax text-[17px] font-semibold tracking-tight text-foreground/95">
-        Sentinel
+        Spec6
       </span>
       <span className="ml-auto text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground/60">
         v0.1.0

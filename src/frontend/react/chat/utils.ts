@@ -70,18 +70,18 @@ export function firstName(displayName: string, username: string): string {
 export function stripFakeToolNarration(body: string): string {
   let cleaned = body;
 
-  // 1. Strip ANY well-formed <sentinel-*>…</sentinel-*> block. Pins and trend
+  // 1. Strip ANY well-formed <spec6-*>…</spec6-*> block. Pins and trend
   //    are rendered separately; any other variant (incl. hallucinated tags like
-  //    <sentinel-pend>) is scaffolding that must never reach the reader.
+  //    <spec6-pend>) is scaffolding that must never reach the reader.
   cleaned = cleaned.replace(
-    /<sentinel-[a-z-]+>[\s\S]*?<\/sentinel-[a-z-]+>/gi,
+    /<spec6-[a-z-]+>[\s\S]*?<\/spec6-[a-z-]+>/gi,
     "",
   );
-  // 2. Strip an unclosed sentinel block (model ran out of tokens before the
+  // 2. Strip an unclosed spec6 block (model ran out of tokens before the
   //    closing tag). Anything from the opening tag to EOF is junk.
-  cleaned = cleaned.replace(/<sentinel-[a-z-]+>[\s\S]*$/i, "");
+  cleaned = cleaned.replace(/<spec6-[a-z-]+>[\s\S]*$/i, "");
   // 3. Strip any stray opener/closer left behind.
-  cleaned = cleaned.replace(/<\/?sentinel-[a-z-]+>/gi, "");
+  cleaned = cleaned.replace(/<\/?spec6-[a-z-]+>/gi, "");
 
   // 3. Strip echoed tool-result envelopes — some models parrot the prior
   //    <tool_results>…</tool_results> block back into their answer.
@@ -143,18 +143,18 @@ export interface ParsedMapPin {
 }
 
 /**
- * Extract pins from a `<sentinel-pins>` block. Robust to:
- *  • the standard closed form `<sentinel-pins>[…]</sentinel-pins>`
- *  • a truncated open form `<sentinel-pins>[…` (model ran out of tokens) —
+ * Extract pins from a `<spec6-pins>` block. Robust to:
+ *  • the standard closed form `<spec6-pins>[…]</spec6-pins>`
+ *  • a truncated open form `<spec6-pins>[…` (model ran out of tokens) —
  *    we still salvage whatever complete pin objects were emitted before
  *    the cutoff.
  * Never throws.
  */
 export function extractMapPins(body: string): ParsedMapPin[] {
-  const openIdx = body.search(/<sentinel-pins>/i);
+  const openIdx = body.search(/<spec6-pins>/i);
   if (openIdx < 0) return [];
-  const afterOpen = body.slice(openIdx + "<sentinel-pins>".length);
-  const closeMatch = afterOpen.match(/<\/sentinel-pins>/i);
+  const afterOpen = body.slice(openIdx + "<spec6-pins>".length);
+  const closeMatch = afterOpen.match(/<\/spec6-pins>/i);
   const raw = (closeMatch ? afterOpen.slice(0, closeMatch.index) : afterOpen).trim();
   if (!raw) return [];
 
@@ -192,26 +192,26 @@ export function extractMapPins(body: string): ParsedMapPin[] {
 }
 
 /**
- * Pull the raw inner payload of a `<sentinel-trend>` block (the growth-chart
+ * Pull the raw inner payload of a `<spec6-trend>` block (the growth-chart
  * JSON). Tolerates a missing close tag (model ran out of tokens). Returns null
  * when no block is present. Parsing into a chart happens in trend-chart.tsx.
  */
 export function extractTrendRaw(body: string): string | null {
-  const openIdx = body.search(/<sentinel-trend>/i);
+  const openIdx = body.search(/<spec6-trend>/i);
   if (openIdx < 0) return null;
-  const afterOpen = body.slice(openIdx + "<sentinel-trend>".length);
-  const closeMatch = afterOpen.match(/<\/sentinel-trend>/i);
+  const afterOpen = body.slice(openIdx + "<spec6-trend>".length);
+  const closeMatch = afterOpen.match(/<\/spec6-trend>/i);
   const raw = (closeMatch ? afterOpen.slice(0, closeMatch.index) : afterOpen).trim();
   return raw || null;
 }
 
 /**
- * Pull EVERY `<sentinel-trend>` block out of a message (the model may emit up
+ * Pull EVERY `<spec6-trend>` block out of a message (the model may emit up
  * to 3). Salvages a trailing unclosed block when the stream was cut off.
  */
 export function extractTrends(body: string): string[] {
   const out: string[] = [];
-  const re = /<sentinel-trend>([\s\S]*?)<\/sentinel-trend>/gi;
+  const re = /<spec6-trend>([\s\S]*?)<\/spec6-trend>/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(body)) !== null) {
     const raw = m[1].trim();

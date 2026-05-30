@@ -38,7 +38,7 @@ pub enum ChatRole {
 }
 
 impl ChatRole {
-    fn as_vultr_role(self) -> &'static str {
+    fn as_openai_compatible_role(self) -> &'static str {
         match self {
             Self::User => "user",
             Self::Assistant => "assistant",
@@ -119,13 +119,32 @@ where
             .await
         }
         InferenceProvider::Vultr => {
-            stream_vultr(
+            stream_openai_compatible(
                 config,
                 selection,
                 turns,
                 group_data_text,
                 include_streamed_meta,
                 options.include_tools,
+                "Vultr",
+                "https://api.vultrinference.com/v1/chat/completions",
+                &mut on_event,
+            )
+            .await
+        }
+        InferenceProvider::Aimlapi => {
+            stream_openai_compatible(
+                config,
+                selection,
+                turns,
+                group_data_text,
+                include_streamed_meta,
+                options.include_tools,
+                "AI/ML API",
+                &format!(
+                    "{}/chat/completions",
+                    config.aimlapi_base_url.trim_end_matches('/')
+                ),
                 &mut on_event,
             )
             .await
@@ -140,6 +159,7 @@ pub async fn list_models(
     match provider {
         InferenceProvider::Gemini => list_gemini_models(config).await,
         InferenceProvider::Vultr => list_vultr_models(config).await,
+        InferenceProvider::Aimlapi => list_aimlapi_models(config).await,
     }
 }
 
@@ -151,7 +171,27 @@ pub async fn generate_text(
 ) -> Result<String> {
     match selection.provider {
         InferenceProvider::Gemini => generate_gemini_text(config, selection, system_prompt, user_prompt).await,
-        InferenceProvider::Vultr => generate_vultr_text(config, selection, system_prompt, user_prompt).await,
+        InferenceProvider::Vultr => generate_openai_compatible_text(
+            config,
+            selection,
+            system_prompt,
+            user_prompt,
+            "Vultr",
+            "https://api.vultrinference.com/v1/chat/completions",
+        )
+        .await,
+        InferenceProvider::Aimlapi => generate_openai_compatible_text(
+            config,
+            selection,
+            system_prompt,
+            user_prompt,
+            "AI/ML API",
+            &format!(
+                "{}/chat/completions",
+                config.aimlapi_base_url.trim_end_matches('/')
+            ),
+        )
+        .await,
     }
 }
 
@@ -243,13 +283,15 @@ where
     Ok(())
 }
 
-async fn stream_vultr<F, Fut>(
+async fn stream_openai_compatible<F, Fut>(
     config: &AppConfig,
     selection: &InferenceSelection,
     turns: &[ChatTurn],
     group_data_text: Option<&str>,
     include_streamed_meta: bool,
     include_tools: bool,
+    provider_name: &str,
+    endpoint: &str,
     on_event: &mut F,
 ) -> Result<()>
 where
@@ -257,8 +299,8 @@ where
     Fut: std::future::Future<Output = Result<()>>,
 {
     let api_key = config
-        .inference_api_key(InferenceProvider::Vultr)
-        .ok_or_else(|| anyhow!("VULTR_INFERENCE_API_KEY is required when using Vultr"))?;
+        .inference_api_key(selection.provider)
+        .ok_or_else(|| anyhow!("{} API key is required", provider_name))?;
 
     let mut messages = Vec::new();
     let system_prompt = prompt::chat_response_system_prompt(
@@ -275,7 +317,7 @@ where
     }
     for turn in turns {
         messages.push(json!({
-            "role": turn.role.as_vultr_role(),
+            "role": turn.role.as_openai_compatible_role(),
             "content": turn.body,
         }));
     }
@@ -288,15 +330,15 @@ where
     });
 
     let response = reqwest::Client::new()
-        .post("https://api.vultrinference.com/v1/chat/completions")
+        .post(endpoint)
         .header("authorization", format!("Bearer {api_key}"))
         .header("content-type", "application/json")
         .json(&request_body)
         .send()
         .await
-        .context("failed to reach Vultr Inference API")?;
+        .with_context(|| format!("failed to reach {provider_name} API"))?;
 
-    let response = ensure_success(response, "Vultr").await?;
+    let response = ensure_success(response, provider_name).await?;
     let mut stream = response.bytes_stream();
     let mut decoder = SseDecoder::default();
     let mut post_processor = StreamPostProcessor::new(include_streamed_meta, turns);
@@ -313,8 +355,8 @@ where
             }
 
             let value: Value =
-                serde_json::from_str(&payload).context("failed to parse Vultr stream chunk")?;
-            let text = extract_vultr_delta(&value);
+                serde_json::from_str(&payload).context("failed to parse streaming chunk")?;
+            let text = extract_openai_compatible_delta(&value);
             for event in post_processor.push(&text) {
                 on_event(event).await?;
             }
@@ -330,8 +372,8 @@ where
         }
 
         let value: Value =
-            serde_json::from_str(&payload).context("failed to parse Vultr stream chunk")?;
-        let text = extract_vultr_delta(&value);
+            serde_json::from_str(&payload).context("failed to parse streaming chunk")?;
+        let text = extract_openai_compatible_delta(&value);
         for event in post_processor.push(&text) {
             on_event(event).await?;
         }
@@ -406,15 +448,17 @@ async fn generate_gemini_text(
     Ok(text)
 }
 
-async fn generate_vultr_text(
+async fn generate_openai_compatible_text(
     config: &AppConfig,
     selection: &InferenceSelection,
     system_prompt: &str,
     user_prompt: &str,
+    provider_name: &str,
+    endpoint: &str,
 ) -> Result<String> {
     let api_key = config
-        .inference_api_key(InferenceProvider::Vultr)
-        .ok_or_else(|| anyhow!("VULTR_INFERENCE_API_KEY is required when using Vultr"))?;
+        .inference_api_key(selection.provider)
+        .ok_or_else(|| anyhow!("{} API key is required", provider_name))?;
 
     let mut messages = Vec::new();
     if !system_prompt.trim().is_empty() {
@@ -436,19 +480,19 @@ async fn generate_vultr_text(
     });
 
     let response = reqwest::Client::new()
-        .post("https://api.vultrinference.com/v1/chat/completions")
+        .post(endpoint)
         .header("authorization", format!("Bearer {api_key}"))
         .header("content-type", "application/json")
         .json(&request_body)
         .send()
         .await
-        .context("failed to reach Vultr Inference API")?;
+        .with_context(|| format!("failed to reach {provider_name} API"))?;
 
-    let response = ensure_success(response, "Vultr").await?;
+    let response = ensure_success(response, provider_name).await?;
     let value: Value = response
         .json()
         .await
-        .context("failed to parse Vultr completion response")?;
+        .with_context(|| format!("failed to parse {provider_name} completion response"))?;
     let text = value
         .get("choices")
         .and_then(Value::as_array)
@@ -460,7 +504,7 @@ async fn generate_vultr_text(
         .to_owned();
 
     if text.trim().is_empty() {
-        return Err(anyhow!("Vultr returned an empty completion"));
+        return Err(anyhow!("{provider_name} returned an empty completion"));
     }
 
     Ok(text)
@@ -613,6 +657,76 @@ async fn list_vultr_models(config: &AppConfig) -> Result<Vec<InferenceModelSumma
         .collect::<Vec<_>>();
 
     models.sort_by(|left, right| left.label.cmp(&right.label));
+    Ok(models)
+}
+
+async fn list_aimlapi_models(config: &AppConfig) -> Result<Vec<InferenceModelSummary>> {
+    let api_key = config
+        .inference_api_key(InferenceProvider::Aimlapi)
+        .ok_or_else(|| anyhow!("AIMLAPI_API_KEY is required when using AI/ML API"))?;
+    let endpoint = format!("{}/models", config.aimlapi_base_url.trim_end_matches('/'));
+    let response = reqwest::Client::new()
+        .get(&endpoint)
+        .header("authorization", format!("Bearer {api_key}"))
+        .send()
+        .await
+        .context("failed to reach AI/ML API for model listing")?;
+    let response = ensure_success(response, "AI/ML API").await?;
+    let value: Value = response
+        .json()
+        .await
+        .context("failed to parse AI/ML API model list response")?;
+
+    let items = if let Some(data) = value.get("data").and_then(Value::as_array) {
+        data.clone()
+    } else if let Some(array) = value.as_array() {
+        array.clone()
+    } else {
+        Vec::new()
+    };
+
+    let mut models = items
+        .into_iter()
+        .filter_map(|item| {
+            let id = item
+                .get("id")
+                .and_then(Value::as_str)
+                .or_else(|| item.get("model").and_then(Value::as_str))
+                .or_else(|| item.get("name").and_then(Value::as_str))?
+                .trim()
+                .to_owned();
+            if id.is_empty() {
+                return None;
+            }
+
+            let supports_chat = item
+                .get("endpoints")
+                .and_then(Value::as_array)
+                .map(|endpoints| {
+                    endpoints.iter().filter_map(Value::as_str).any(|endpoint| {
+                        endpoint.eq_ignore_ascii_case("/v1/chat/completions")
+                            || endpoint.eq_ignore_ascii_case("/chat/completions")
+                            || endpoint.eq_ignore_ascii_case("/v1/responses")
+                    })
+                })
+                .unwrap_or(true);
+            if !supports_chat {
+                return None;
+            }
+
+            let label = item
+                .get("name")
+                .and_then(Value::as_str)
+                .filter(|value| !value.trim().is_empty())
+                .unwrap_or(&id)
+                .to_owned();
+
+            Some(InferenceModelSummary { id, label })
+        })
+        .collect::<Vec<_>>();
+
+    models.sort_by(|left, right| left.label.cmp(&right.label));
+    models.dedup_by(|left, right| left.id == right.id);
     Ok(models)
 }
 
@@ -796,7 +910,7 @@ fn extract_gemini_delta(value: &Value) -> String {
     out
 }
 
-fn extract_vultr_delta(value: &Value) -> String {
+fn extract_openai_compatible_delta(value: &Value) -> String {
     let mut out = String::new();
     let Some(choices) = value.get("choices").and_then(Value::as_array) else {
         return out;

@@ -1,8 +1,8 @@
 /**
  * Growth / projection charts, powered by Recharts.
  *
- * The analyst emits a <sentinel-trend>…</sentinel-trend> JSON block (sibling to
- * <sentinel-pins>). We parse it here and render a monochrome, DESIGN.md-styled
+ * The analyst emits a <spec6-trend>…</spec6-trend> JSON block (sibling to
+ * <spec6-pins>). We parse it here and render a monochrome, DESIGN.md-styled
  * area / line / bar chart inline in the thread. Projected (forecast) series are
  * drawn dashed so the eye separates "measured" from "modelled".
  */
@@ -54,7 +54,7 @@ const TONE_HEX: Record<TrendTone, string> = {
 
 /* ─── parsing ───────────────────────────────────────────────────────────── */
 
-export function parseSentinelTrend(raw: string): ParsedTrend | null {
+export function parseSpec6Trend(raw: string): ParsedTrend | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
   const tryParse = (s: string): unknown => {

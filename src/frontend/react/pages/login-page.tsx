@@ -8,7 +8,7 @@ export function LoginPage() {
   return (
     <AuthShell
       heading="Sign in"
-      sub="Continue to Sentinel."
+      sub="Continue to Spec6."
       form={<LoginForm />}
       switchTo={{ href: "/signup", label: "No account yet?", cta: "Create one" }}
     />
@@ -93,7 +93,7 @@ export function AuthShell({
     <div className="app-container flex min-h-full flex-col bg-background text-foreground">
       <header className="flex items-center px-6 py-5 sm:px-10">
         <span className="font-chillax text-[14.5px] font-semibold tracking-tight text-foreground/95">
-          Sentinel
+          Spec6
         </span>
       </header>
 
@@ -121,7 +121,7 @@ export function AuthShell({
       </main>
 
       <footer className="flex items-center justify-center px-6 pb-6 text-[10.5px] tabular-nums text-muted-foreground/40">
-        <span>© {new Date().getFullYear()} Sentinel</span>
+        <span>© {new Date().getFullYear()} Spec6</span>
       </footer>
     </div>
   );

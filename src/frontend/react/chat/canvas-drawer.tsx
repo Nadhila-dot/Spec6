@@ -5,7 +5,7 @@
  * calls — Open canvas ↗"). Clicking it slides in a right-side drawer that
  * shows: the world heatmap, large and interactive at the top; a per-agent
  * breakdown below with the queries each one fired, elapsed time, and result
- * counts. The map honours <sentinel-pins> markdown emitted by the LLM, so
+ * counts. The map honours <spec6-pins> markdown emitted by the LLM, so
  * hovering a country pulls up the analyst's narrative for that location.
  */
 
@@ -172,7 +172,7 @@ export function CanvasPreview({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground/55">
-              Sentinel · agent canvas
+              Spec6 · agent canvas
             </span>
             {hasPins && (
               <span
@@ -197,7 +197,7 @@ export function CanvasPreview({
           >
             {hasPins ? (
               <span>
-                Sentinel pinned <span className="tabular-nums">{pins.length}</span> location
+                Spec6 pinned <span className="tabular-nums">{pins.length}</span> location
                 {pins.length === 1 ? "" : "s"} across{" "}
                 <span className="tabular-nums">{countryCount}</span> countr
                 {countryCount === 1 ? "y" : "ies"}
@@ -515,7 +515,7 @@ export function CanvasDrawer({
       {/* panel */}
       <aside
         role="dialog"
-        aria-label="Sentinel agent canvas"
+        aria-label="Spec6 agent canvas"
         className={cn(
           "fixed inset-y-0 right-0 z-50 flex w-full max-w-[920px] flex-col overflow-hidden border-l border-border bg-shell shadow-[0_24px_56px_-10px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)] transition-transform duration-[260ms]",
           open ? "translate-x-0" : "translate-x-full",
@@ -635,7 +635,7 @@ function DrawerHeader({
         </HatchedChip>
         <div className="min-w-0 flex-1">
           <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
-            Sentinel · agent canvas
+            Spec6 · agent canvas
           </div>
           <div className="font-chillax text-[18px] font-semibold tracking-tight text-white">
             {triggered.length} agent{triggered.length === 1 ? "" : "s"} dispatched

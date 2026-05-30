@@ -65,7 +65,7 @@ fn resolve_page(state: &AppState, clean_path: &str, user: Option<AuthUser>) -> R
                     component: "landing",
                     props: json!({
                         "tagline": "Brand intelligence at the speed of code.",
-                        "copy": "Sentinel is an autonomous brand threat intelligence platform. One brand name in, an analyst-grade dossier out in ninety seconds.",
+                        "copy": "Spec6 is an autonomous brand threat intelligence platform. One brand name in, an analyst-grade dossier out in ninety seconds.",
                     }),
                 },
                 user,

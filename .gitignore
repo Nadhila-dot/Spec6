@@ -1,9 +1,16 @@
 /node_modules
 /target
 /debug
+/dist
+/product.md
+/voice-assistant-plan.md
+/me.md
 
 /src/frontend/dist/client/*
 !/src/frontend/dist/client/.keep
 !/src/frontend/dist/client/.vite
 /src/frontend/dist/client/.vite/*
 !/src/frontend/dist/client/.vite/manifest.json
+
+/cognee.sh
+cognee.sh

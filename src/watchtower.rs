@@ -1,6 +1,6 @@
 //! Autonomous monitoring — the "Watchtower".
 //!
-//! Sentinel is not purely reactive. A background patrol periodically re-scans
+//! Spec6 is not purely reactive. A background patrol periodically re-scans
 //! every tracked company so its threat dossier stays fresh without a human
 //! asking. It reuses the exact same BrightData overview pipeline the chat agent
 //! drives, so an autonomous re-scan is indistinguishable from a manual one — it

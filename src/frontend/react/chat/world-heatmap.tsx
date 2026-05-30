@@ -1,7 +1,7 @@
 /**
  * Geographic intelligence panel — real country borders driven by AI-emitted
  * pins ONLY. Markers and country shading come from the model's
- * `<sentinel-pins>` block; we never invent geography on the brand's behalf.
+ * `<spec6-pins>` block; we never invent geography on the brand's behalf.
  *
  * Uses react-simple-maps over the 110m world TopoJSON shipped from
  * /world-110m.json.
@@ -170,7 +170,7 @@ export function WorldHeatmap({
                   setTooltip({
                     x: e.clientX,
                     y: e.clientY,
-                    title: p.label ?? "Sentinel pin",
+                    title: p.label ?? "Spec6 pin",
                     body: p.md,
                     isMarkdown: true,
                   })

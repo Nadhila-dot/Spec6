@@ -29,7 +29,7 @@ import {
   splitThinking,
   stripFakeToolNarration,
 } from "./utils";
-import { type ParsedTrend, TrendChart, parseSentinelTrend } from "./trend-chart";
+import { type ParsedTrend, TrendChart, parseSpec6Trend } from "./trend-chart";
 import { AutonomyBanner } from "./autonomy-banner";
 import type {
   OverviewActivityEvent,
@@ -284,7 +284,7 @@ function EmptyHero({
         error={error}
         body={body}
         onBodyChange={onBodyChange}
-        placeholder="Ask Sentinel anything."
+        placeholder="Ask Spec6 anything."
         minRows={3}
         picker={picker}
       />
@@ -518,7 +518,7 @@ function MessageBubble({
   const trends = useMemo(
     () =>
       extractTrends(message.body)
-        .map(parseSentinelTrend)
+        .map(parseSpec6Trend)
         .filter((t): t is ParsedTrend => t !== null),
     [message.body],
   );

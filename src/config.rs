@@ -29,6 +29,7 @@ impl AppEnv {
 pub enum InferenceProvider {
     Gemini,
     Vultr,
+    Aimlapi,
 }
 
 impl InferenceProvider {
@@ -36,6 +37,7 @@ impl InferenceProvider {
         match self {
             Self::Gemini => "gemini",
             Self::Vultr => "vultr",
+            Self::Aimlapi => "aimlapi",
         }
     }
 
@@ -43,6 +45,7 @@ impl InferenceProvider {
         match self {
             Self::Gemini => "Gemini",
             Self::Vultr => "Vultr",
+            Self::Aimlapi => "AI/ML API",
         }
     }
 }
@@ -54,8 +57,9 @@ impl TryFrom<&str> for InferenceProvider {
         match value.trim().to_ascii_lowercase().as_str() {
             "gemini" => Ok(Self::Gemini),
             "vultr" => Ok(Self::Vultr),
+            "aimlapi" | "aiml" | "ai/ml api" => Ok(Self::Aimlapi),
             other => Err(anyhow!(
-                "INFERENCE_PROVIDER must be `gemini` or `vultr`, received `{other}`"
+                "INFERENCE_PROVIDER must be `gemini`, `vultr`, or `aimlapi`, received `{other}`"
             )),
         }
     }
@@ -99,6 +103,8 @@ pub struct AppConfig {
     pub inference_max_output_tokens: u32,
     pub gemini_api_key: Option<String>,
     pub vultr_api_key: Option<String>,
+    pub aimlapi_api_key: Option<String>,
+    pub aimlapi_base_url: String,
     pub brightdata_api_key: Option<String>,
     pub brightdata_serp_zone: Option<String>,
     pub brightdata_web_unlocker_zone: Option<String>,
@@ -139,7 +145,12 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub fn from_env() -> Result<Self> {
-        let env = AppEnv::try_from(env_string("APP_ENV", "development").as_str())?;
+        let default_env = if cfg!(debug_assertions) {
+            "development"
+        } else {
+            "production"
+        };
+        let env = AppEnv::try_from(env_string("APP_ENV", default_env).as_str())?;
         let host = env_string("APP_HOST", "127.0.0.1");
         let port = env_u16("APP_PORT", 3000)?;
         let app_url = env_string("APP_URL", &format!("http://{host}:{port}"));
@@ -159,6 +170,8 @@ impl AppConfig {
         let inference_max_output_tokens = env_u32("INFERENCE_MAX_OUTPUT_TOKENS", 4096)?;
         let gemini_api_key = env_optional_string("GEMINI_API_KEY");
         let vultr_api_key = env_optional_string("VULTR_INFERENCE_API_KEY");
+        let aimlapi_api_key = env_optional_string("AIMLAPI_API_KEY");
+        let aimlapi_base_url = env_string("AIMLAPI_BASE_URL", "https://api.aimlapi.com/v1");
         let brightdata_api_key = env_optional_string("BRIGHTDATA_API_KEY");
         let brightdata_serp_zone = env_optional_string("BRIGHTDATA_SERP_ZONE");
         let brightdata_web_unlocker_zone = env_optional_string("BRIGHTDATA_WEB_UNLOCKER_ZONE");
@@ -232,6 +245,8 @@ impl AppConfig {
             inference_max_output_tokens,
             gemini_api_key,
             vultr_api_key,
+            aimlapi_api_key,
+            aimlapi_base_url,
             brightdata_api_key,
             brightdata_serp_zone,
             brightdata_web_unlocker_zone,
@@ -269,6 +284,7 @@ impl AppConfig {
         match provider {
             InferenceProvider::Gemini => self.gemini_api_key.as_deref(),
             InferenceProvider::Vultr => self.vultr_api_key.as_deref(),
+            InferenceProvider::Aimlapi => self.aimlapi_api_key.as_deref(),
         }
     }
 
@@ -277,7 +293,11 @@ impl AppConfig {
     }
 
     pub fn available_inference_providers(&self) -> Vec<InferenceProvider> {
-        [InferenceProvider::Gemini, InferenceProvider::Vultr]
+        [
+            InferenceProvider::Gemini,
+            InferenceProvider::Vultr,
+            InferenceProvider::Aimlapi,
+        ]
             .into_iter()
             .filter(|provider| self.inference_provider_enabled(*provider))
             .collect()
@@ -326,6 +346,8 @@ mod tests {
             inference_max_output_tokens: 4096,
             gemini_api_key: None,
             vultr_api_key: Some("vultr".to_owned()),
+            aimlapi_api_key: None,
+            aimlapi_base_url: "https://api.aimlapi.com/v1".to_owned(),
             brightdata_api_key: None,
             brightdata_serp_zone: None,
             brightdata_web_unlocker_zone: None,
@@ -363,6 +385,7 @@ fn default_model(provider: InferenceProvider) -> &'static str {
     match provider {
         InferenceProvider::Gemini => "gemini-2.5-flash",
         InferenceProvider::Vultr => "moonshotai/kimi-k2-instruct",
+        InferenceProvider::Aimlapi => "gpt-4o",
     }
 }
 

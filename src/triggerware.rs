@@ -173,7 +173,7 @@ impl TriggerwareClient {
             "schedule": schedule_secs,
             "status": "enabled",
             "delivery": {
-                "managed_by": "sentinel",
+                "managed_by": "spec6",
                 "channels": ["slack", "discord"]
             }
         });
@@ -266,7 +266,7 @@ pub async fn sync_company_monitors(
                         error = ?err,
                         trigger_name = %spec.trigger_name,
                         company_id = %company_id.to_hex(),
-                        "triggerware could not synthesize this trigger; keeping Sentinel-managed fallback active"
+                        "triggerware could not synthesize this trigger; keeping Spec6-managed fallback active"
                     );
                 } else {
                     tracing::warn!(
@@ -332,7 +332,7 @@ pub async fn chat_query(config: &AppConfig, query: &str) -> Result<Vec<(String, 
     let client = TriggerwareClient::new(&config.triggerware_api_url, api_key)?;
     if !triggerware_has_connectors(&client).await? {
         return Err(anyhow!(
-            "TriggerWare is connected but this instance has no installed connectors yet. Install connectors first, then Sentinel can run TriggerWare-backed alerts and queries."
+            "TriggerWare is connected but this instance has no installed connectors yet. Install connectors first, then Spec6 can run TriggerWare-backed alerts and queries."
         ));
     }
     let result = client.query_english(query).await?;
@@ -495,7 +495,7 @@ fn company_monitor_specs(
         .cloned()
         .unwrap_or_default();
 
-    let prefix = format!("sentinel-{}-{}", company_id.to_hex(), slugify(company));
+    let prefix = format!("spec6-{}-{}", company_id.to_hex(), slugify(company));
     vec![
         CompanyMonitorSpec {
             kind: "reputation",
@@ -693,11 +693,11 @@ async fn notify_channels(
         let response = http
             .post(url)
             .json(&json!({
-                "text": format!("Sentinel alert for {company_name}"),
+                "text": format!("Spec6 alert for {company_name}"),
                 "blocks": [
                     {
                         "type": "header",
-                        "text": { "type": "plain_text", "text": format!("Sentinel alert · {company_name}") }
+                        "text": { "type": "plain_text", "text": format!("Spec6 alert · {company_name}") }
                     },
                     {
                         "type": "section",
@@ -743,7 +743,7 @@ fn ingest_trigger_to_cognee(
     let dataset = cognee::dataset_name_for_group(&company_hex_owned);
     let filename = format!("trigger-{company_hex_owned}-{}", slugify(trigger_name));
     let memory = format!(
-        "Sentinel trigger event\nCompany: {company_name}\nTrigger: {trigger_name}\nSeverity: {severity}\nTimestamp UTC: {}\n\n{}",
+        "Spec6 trigger event\nCompany: {company_name}\nTrigger: {trigger_name}\nSeverity: {severity}\nTimestamp UTC: {}\n\n{}",
         Utc::now().to_rfc3339(),
         body
     );

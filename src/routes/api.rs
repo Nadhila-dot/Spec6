@@ -1229,7 +1229,7 @@ async fn handle_message_socket(
             }
         };
 
-        // If the model forgot to emit a <sentinel-pins> block, fire a focused
+        // If the model forgot to emit a <spec6-pins> block, fire a focused
         // extraction call so the canvas map still gets analyst-grade tooltips.
         // Failure is silent — we save the original body untouched.
         let assistant_body = ensure_pin_block(
@@ -1576,7 +1576,7 @@ async fn run_agent_loop(
         // sees the evidence already on the table. We attribute the call to a
         // helper "router" so the model knows it didn't fire these itself.
         turns.push(agent::assistant_turn_from_pass(
-            "(Sentinel router auto-dispatched marketplace + research scouts based on the user request.)",
+            "(Spec6 router auto-dispatched marketplace + research scouts based on the user request.)",
         ));
         turns.push(agent::user_tool_results_turn(agent::render_tool_results_turn(
             &seed_paired,
@@ -1788,8 +1788,8 @@ fn has_unclosed_markdown_fence(text: &str) -> bool {
 
 fn has_unclosed_custom_block(text: &str) -> bool {
     for (open, close) in [
-        ("<sentinel-pins>", "</sentinel-pins>"),
-        ("<sentinel-trend>", "</sentinel-trend>"),
+        ("<spec6-pins>", "</spec6-pins>"),
+        ("<spec6-trend>", "</spec6-trend>"),
         ("<think>", "</think>"),
         ("<thinking>", "</thinking>"),
     ] {
@@ -1912,7 +1912,7 @@ async fn dispatch_seed_invocations(
     outcomes
 }
 
-/// Make sure the final assistant answer carries a <sentinel-pins> block.
+/// Make sure the final assistant answer carries a <spec6-pins> block.
 /// If the model forgot to emit one, fire a focused extraction call against
 /// the same provider/model and splice the result into the answer body.
 ///
@@ -1926,7 +1926,7 @@ async fn ensure_pin_block(
 ) -> String {
     let lower_user = user_message.to_lowercase();
     let map_requested = agent::is_map_request(&lower_user);
-    let has_pins = answer.contains("<sentinel-pins>");
+    let has_pins = answer.contains("<spec6-pins>");
 
     // Fire when:
     //   • pins are missing, OR
@@ -1942,9 +1942,9 @@ async fn ensure_pin_block(
 
     let system_prompt = prompt::pin_extraction_system_prompt();
     let directive = if map_requested {
-        "The user explicitly asked for the answer plotted on the map. Emit 5–8 specific pins with $ figures or % share. Output the <sentinel-pins> block NOW and nothing else."
+        "The user explicitly asked for the answer plotted on the map. Emit 5–8 specific pins with $ figures or % share. Output the <spec6-pins> block NOW and nothing else."
     } else {
-        "Emit the <sentinel-pins> block now and nothing else."
+        "Emit the <spec6-pins> block now and nothing else."
     };
     let user_prompt = format!(
         "User question:\n{user}\n\nAnalyst answer:\n{ans}\n\n{directive}",
@@ -1964,7 +1964,7 @@ async fn ensure_pin_block(
                 // had a (likely token-starved) pin block, replace it.
                 let base = if has_pins && map_requested {
                     answer
-                        .split("<sentinel-pins>")
+                        .split("<spec6-pins>")
                         .next()
                         .unwrap_or(answer)
                         .trim_end()
@@ -1990,9 +1990,9 @@ async fn ensure_pin_block(
 
 fn extract_pin_block(text: &str) -> Option<String> {
     let lower = text.to_ascii_lowercase();
-    let open = lower.find("<sentinel-pins>")?;
-    let close_rel = lower[open..].find("</sentinel-pins>")?;
-    let end = open + close_rel + "</sentinel-pins>".len();
+    let open = lower.find("<spec6-pins>")?;
+    let close_rel = lower[open..].find("</spec6-pins>")?;
+    let end = open + close_rel + "</spec6-pins>".len();
     Some(text[open..end].to_owned())
 }
 
