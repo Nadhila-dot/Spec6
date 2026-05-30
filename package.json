@@ -1,0 +1,39 @@
+{
+  "name": "win-win",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "dev:frontend": "vite --config src/frontend/vite.config.ts",
+    "dev:server": "cargo run",
+    "build:frontend": "vite build --config src/frontend/vite.config.ts",
+    "build:app": "bun run build:frontend && cargo build --release",
+    "preview": "APP_ENV=production cargo run"
+  },
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "katex": "^0.17.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "react-simple-maps": "^3.0.0",
+    "recharts": "^3.8.1",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/d3-geo": "^3.1.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/react-simple-maps": "^3.0.6",
+    "@types/topojson-client": "^3.1.5",
+    "@vitejs/plugin-react": "^5.0.4",
+    "playwright-core": "^1.60.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12"
+  }
+}

@@ -1,0 +1,9 @@
+/node_modules
+/target
+/debug
+
+/src/frontend/dist/client/*
+!/src/frontend/dist/client/.keep
+!/src/frontend/dist/client/.vite
+/src/frontend/dist/client/.vite/*
+!/src/frontend/dist/client/.vite/manifest.json

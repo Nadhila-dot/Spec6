@@ -1,0 +1,33 @@
+[package]
+name = "win-win"
+version = "0.1.0"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+anyhow = "1.0"
+argon2 = "0.5"
+axum = { version = "0.7", features = ["macros", "ws"] }
+axum-extra = { version = "0.9", features = ["cookie"] }
+base64 = "0.22"
+bson = { version = "2.11", features = ["chrono-0_4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+futures = "0.3"
+httpdate = "1.0"
+include_dir = "0.7"
+mime_guess = "2.0"
+mongodb = "2.8"
+rand = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream", "multipart"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+time = { version = "0.3", features = ["serde", "macros"] }
+tokio = { version = "1.0", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-stream = "0.1"
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots", "connect"] }
+tower-http = { version = "0.6", features = ["compression-full", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+urlencoding = "2.1"
+uuid = { version = "1", features = ["v4", "serde"] }

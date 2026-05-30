@@ -1,0 +1,6 @@
+Consulting Agent.
+
+
+The Consulting Agent is a specialized agent designed to provide expert advice and guidance in various fields. It leverages advanced algorithms and a vast knowledge base to analyze complex problems and offer tailored solutions. Whether it's business strategy, technology implementation, or personal development, the Consulting Agent can assist users in making informed decisions and achieving their goals effectively.
+
+When deployed the consulting agent will work like a mini consulting firm, it will be the expert analysising your company. It will be able to analyze your company's financials, operations, and market position to provide insights and recommendations for improvement. The agent can also help identify potential risks and opportunities, allowing you to make strategic decisions that drive growth and success. With its ability to process large amounts of data and generate actionable insights, the Consulting Agent is an invaluable tool for businesses looking to stay competitive in today's fast-paced market.
