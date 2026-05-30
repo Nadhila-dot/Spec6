@@ -426,12 +426,17 @@ pub async fn delete_company_overview(
 
 pub fn should_queue_company_overview(group_name: &str, data_text: &str) -> bool {
     let seed = parse_company_seed(group_name, data_text);
-    !seed.company_name.trim().is_empty()
+    !is_placeholder_company_name(seed.company_name.trim())
         || !seed.website.trim().is_empty()
         || !seed.specialty.trim().is_empty()
         || !seed.customers.trim().is_empty()
         || !seed.known_competitors.trim().is_empty()
         || !seed.notes.trim().is_empty()
+}
+
+pub fn company_name_for_group(group_name: &str, data_text: &str) -> String {
+    let seed = parse_company_seed(group_name, data_text);
+    effective_company_name(group_name, &seed)
 }
 
 pub fn prompt_context(group_data_text: Option<String>, overview: Option<&CompanyOverview>) -> Option<String> {
@@ -571,6 +576,24 @@ pub async fn queue_company_overview(state: AppState, user_id: ObjectId, company_
             );
         }
         state_clone.overview_runs.release(&company_hex).await;
+    });
+}
+
+pub fn queue_company_overview_after_current(state: AppState, user_id: ObjectId, company_id: ObjectId) {
+    let company_hex = company_id.to_hex();
+    tokio::spawn(async move {
+        for _ in 0..120 {
+            let is_active = {
+                let guard = state.overview_runs.active_company_ids.lock().await;
+                guard.contains(&company_hex)
+            };
+            if !is_active {
+                queue_company_overview(state.clone(), user_id, company_id).await;
+                return;
+            }
+            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+        }
+        tracing::warn!(company_id = %company_hex, "timed out waiting to requeue company overview after stale run");
     });
 }
 
@@ -4415,13 +4438,21 @@ fn parse_company_seed(group_name: &str, data_text: &str) -> CompanySeed {
 
 fn effective_company_name(group_name: &str, seed: &CompanySeed) -> String {
     let candidate = seed.company_name.trim();
-    if !candidate.is_empty() && !candidate.eq_ignore_ascii_case("new company") {
+    if !is_placeholder_company_name(candidate) {
         candidate.to_owned()
-    } else if !group_name.trim().is_empty() {
+    } else if !is_placeholder_company_name(group_name.trim()) {
         group_name.trim().to_owned()
     } else {
         "New company".to_owned()
     }
+}
+
+fn is_placeholder_company_name(name: &str) -> bool {
+    let normalized = name.trim();
+    normalized.is_empty()
+        || normalized.eq_ignore_ascii_case("new company")
+        || normalized.eq_ignore_ascii_case("untitled company")
+        || normalized.eq_ignore_ascii_case("untitled")
 }
 
 fn extract_labeled_value(data_text: &str, label: &str) -> Option<String> {

@@ -501,23 +501,41 @@ async fn update_chat_group(
     match chat::update_chat_group(&state.db, user_oid, group_oid, &body.name, &body.data_text).await
     {
         Ok(Some(group)) => {
+            let target_company_name = overview::company_name_for_group(&group.name, &group.data_text);
             if overview::should_queue_company_overview(&group.name, &group.data_text) {
                 // Skip if an overview is already running or has already completed for this company.
                 // Failed runs are allowed to retry on the next save.
-                let existing_status =
-                    overview::load_company_overview(&state.db, user_oid, group_oid)
-                        .await
-                        .ok()
-                        .flatten()
-                        .map(|item| item.status);
+                let existing = overview::load_company_overview(&state.db, user_oid, group_oid)
+                    .await
+                    .ok()
+                    .flatten();
+                let existing_status = existing.as_ref().map(|item| item.status);
+                let stale_company_name = existing
+                    .as_ref()
+                    .map(|item| !item.company_name.trim().eq_ignore_ascii_case(target_company_name.trim()))
+                    .unwrap_or(false);
                 let skip = matches!(
                     existing_status,
                     Some(overview::CompanyOverviewStatus::Queued)
                         | Some(overview::CompanyOverviewStatus::Running)
                         | Some(overview::CompanyOverviewStatus::Completed)
-                );
+                ) && !stale_company_name;
                 if !skip {
+                    if stale_company_name
+                        && matches!(
+                            existing_status,
+                            Some(overview::CompanyOverviewStatus::Queued)
+                                | Some(overview::CompanyOverviewStatus::Running)
+                        )
+                    {
+                        overview::queue_company_overview_after_current(
+                            state.clone(),
+                            user_oid,
+                            group_oid,
+                        );
+                    } else {
                     overview::queue_company_overview(state.clone(), user_oid, group_oid).await;
+                    }
                 }
             }
 

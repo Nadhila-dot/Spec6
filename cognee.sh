@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ========= EDIT THIS =========
-GEMINI_API_KEY="AIzaSyD500XRvnLYMNsBkm8EQsdTdfYUmgtUyTg"
+GEMINI_API_KEY=""
 # =============================
 
 APP_DIR="/opt/cognee"

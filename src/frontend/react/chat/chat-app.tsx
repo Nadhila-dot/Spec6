@@ -448,7 +448,7 @@ export function ChatApp({
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Untitled company", data_text: "" }),
+        body: JSON.stringify({ name: "New company", data_text: "" }),
       });
       if (!res.ok) throw new Error(`create group ${res.status}`);
       const data = (await res.json()) as { group: ChatGroup };
