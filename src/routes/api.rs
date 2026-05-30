@@ -509,7 +509,7 @@ async fn update_chat_group(
                     .await
                     .ok()
                     .flatten();
-                let existing_status = existing.as_ref().map(|item| item.status);
+                let existing_status = existing.as_ref().map(|item| item.status.clone());
                 let stale_company_name = existing
                     .as_ref()
                     .map(|item| !item.company_name.trim().eq_ignore_ascii_case(target_company_name.trim()))
